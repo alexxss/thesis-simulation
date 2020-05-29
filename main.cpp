@@ -1,66 +1,105 @@
+#ifndef NODE
+#include "node.h"
+#endif // NODE
+#ifndef CLUSTERING
+#include "clustering.h"
+#endif // CLUSTERING
+#ifndef CHANNEL
+#include "channel.h"
+#endif // CHANNEL
+
 #include <iostream>
 #include <stdlib.h> //rand
 #include <random> //C++'s random
-#include "node.h"
-#define NODE
-#include "clustering.h"
-#define UE_number 10
-#define AP_number 20
-#define channel_threshold 7.5
-#define distance_threshold 5
+#include <fstream> //ofstream
 
 using namespace std;
+
+/**
+\brief saves UE & AP location to file for plot
+\param receiver array
+\param transmitter array
+*/
+void save_room_data(node* receiver[g_UE_number], node* transmitter[g_AP_number]){
+    /*--------------save to file for plot------------------
+     columns: <node id> <x> <y>
+     run in cmd: `gnuplot -p plot_room.gnu` to view plot
+    -------------------------------------------------------*/
+    ofstream fout("UE_point.dat");
+    if(fout.is_open()){
+        for(int i=0;i<g_UE_number;i++)
+            fout<<i<<' '<<receiver[i]->location.first<<' '<<receiver[i]->location.second<<endl;
+        fout.close();
+    }
+    fout.open("AP_point.dat");
+    if(fout.is_open()){
+        for(int i=0;i<g_AP_number;i++){
+            fout<<i<<' '<<transmitter[i]->location.first<<' '<<transmitter[i]->location.second<<endl;
+        }
+        fout.close();
+    }
+
+}
 
 int main()
 {
     /*-------------initialization----------------*/
-    node* transmitter [AP_number]; // AP
-    node* receiver [UE_number];    // UE
-    for (int i=0; i<AP_number; i++)
-        transmitter[i]=new node(i,rand()%20,rand()%20); // AP
-    for (int i=0; i<UE_number; i++)
-        receiver[i] = new node(i,rand()%20, rand()%20); // UE
-
-    /*-----------generate channel----------------*/
-    uniform_real_distribution<double> unif(0.0,15.0);
+    node* transmitter [g_AP_number]; // AP
+    node* receiver [g_UE_number];    // UE
+    // generate AP node
+    for (int i=0; i<g_AP_number; i++)
+        transmitter[i]=new node(i); // AP
+    // generate UE node
+    uniform_real_distribution<double> unif(0.0, g_room_dim);
     default_random_engine re;
-    double channel[AP_number][UE_number];
-    for(int i=0;i<AP_number;i++)
-        for (int j=0;j<UE_number;j++){
-            channel[i][j] = unif(re);
+    for (int i=0; i<g_UE_number; i++)
+        receiver[i] = new node(i,unif(re), unif(re)); // UE
+
+    /*--------------save to file for plot------------------
+     run in cmd: `gnuplot -p plot_room.gnu` to view plot
+    -------------------------------------------------------*/
+    save_room_data(receiver, transmitter);
+
+    // TODO (alex#1#): use channel formula
+    /*-----------generate channel----------------*/
+    unif.param(uniform_real_distribution<double>::param_type(0.0,g_channel_threshold*1.2));
+    double channel[g_AP_number][g_UE_number];
+    for(int i=0;i<g_AP_number;i++)
+        for (int j=0;j<g_UE_number;j++){
+            //channel[i][j] = unif(re);
+            channel[i][j]=0.0;
         }
+    calculate_all_channel(transmitter,receiver,channel);
 
     /*---- for each UE, send request to APs if channel > threshold ----*/
-    for(int i=0;i<UE_number;i++){
+    for(int i=0;i<g_UE_number;i++){
         // check all APs, if channel > threshold send request
-        for(int j=0; j<AP_number; j++){
-            if (channel[j][i]>channel_threshold)
+        for(int j=0; j<g_AP_number; j++){
+            if (channel[j][i]>g_channel_threshold)
                 transmitter[j]->receiveRequest(i);
         }
     }
-    //UE_send_requests(transmitter,receiver,channel,UE_number,AP_number,channel_threshold);
 
     /*---- for each AP, send request to UEs if distance < threshold ----*/
-    for(int i=0; i<AP_number; i++){
+    for(int i=0; i<g_AP_number; i++){
         // check all UEs, if distance<threshold send request
-        for(int j=0; j<UE_number; j++){
-            //if (Euclidean_distance(transmitter[i]->location,receiver[j]->location)<distance_threshold)
-            if (transmitter[i]->distance(receiver[j])<distance_threshold)
+        for(int j=0; j<g_UE_number; j++){
+            if (transmitter[i]->distance(receiver[j])<g_distance_threshold)
                 receiver[j]->receiveRequest(i);
         }
     }
 
     cout<<"UE nodes"<<endl;
-    for(int i=0; i<UE_number; i++) receiver[i]->printme();
-    cout<<endl<<"AP nodes"<<endl;
-    for(int j=0; j<AP_number; j++) transmitter[j]->printme();
+    for(int i=0; i<g_UE_number; i++) receiver[i]->printme();
+    std::cout<<std::endl<<"AP nodes"<<std::endl;
+    for(int j=0; j<g_AP_number; j++) transmitter[j]->printme();
 
-    both_sides_connect(transmitter,receiver,UE_number,AP_number);
+    both_sides_connect(transmitter,receiver);
 
-    cout<<"UE nodes"<<endl;
-    for(int i=0; i<UE_number; i++) receiver[i]->printme();
-    cout<<endl<<"AP nodes"<<endl;
-    for(int j=0; j<AP_number; j++) transmitter[j]->printme();
+    std::cout<<"UE nodes"<<std::endl;
+    for(int i=0; i<g_UE_number; i++) receiver[i]->printme();
+    std::cout<<std::endl<<"AP nodes"<<std::endl;
+    for(int j=0; j<g_AP_number; j++) transmitter[j]->printme();
 
     return 0;
 }
