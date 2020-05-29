@@ -15,11 +15,6 @@ node::node(int id){
     this->location = std::pair<double,double>(x,y);
 }
 
-    /**
-    * \brief initializer for node
-    * \param id Node id
-    * \param x,y Location for node
-    */
 node::node(int id, double x, double y){
     this->id = id;
     this->location = std::pair<double,double>(x,y);

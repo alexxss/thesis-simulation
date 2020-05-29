@@ -60,7 +60,6 @@ int main()
     -------------------------------------------------------*/
     save_room_data(receiver, transmitter);
 
-    // TODO (alex#1#): use channel formula
     /*-----------calculate channel---------------*/
     double channel[g_AP_number][g_UE_number];
     calculate_all_channel(transmitter,receiver,channel);
