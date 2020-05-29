@@ -29,7 +29,7 @@ void node::receiveRequest(int srcNodeId){
     this->receivedRequests.push_back(srcNodeId);
 }
 
-double node::distance(const node* nodeB){
+double node::plane_distance(const node* nodeB){
     double x = this->location.first - nodeB->location.first;
     double y = this->location.second - nodeB->location.second;
     double dist = std::pow(x,2) + std::pow(y,2);
@@ -37,6 +37,11 @@ double node::distance(const node* nodeB){
     return dist;
 }
 
+double node::euclidean_distance(const node* nodeB){
+    const double height_diff = g_AP_height - g_UE_height;
+    const double plane_diff = this->plane_distance(nodeB);
+    return std::sqrt(std::pow(height_diff,2)+std::pow(plane_diff,2));
+}
 
 bool node::hasRequest(const int srcNodeId){
     auto it = this->receivedRequests.begin();

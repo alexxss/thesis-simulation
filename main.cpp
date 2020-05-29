@@ -1,11 +1,11 @@
 #ifndef NODE
-#include "node.h"
+#include "src/node.h"
 #endif // NODE
 #ifndef CLUSTERING
-#include "clustering.h"
+#include "src/clustering.h"
 #endif // CLUSTERING
 #ifndef CHANNEL
-#include "channel.h"
+#include "src/channel.h"
 #endif // CHANNEL
 
 #include <iostream>
@@ -61,14 +61,8 @@ int main()
     save_room_data(receiver, transmitter);
 
     // TODO (alex#1#): use channel formula
-    /*-----------generate channel----------------*/
-    unif.param(uniform_real_distribution<double>::param_type(0.0,g_channel_threshold*1.2));
+    /*-----------calculate channel---------------*/
     double channel[g_AP_number][g_UE_number];
-    for(int i=0;i<g_AP_number;i++)
-        for (int j=0;j<g_UE_number;j++){
-            //channel[i][j] = unif(re);
-            channel[i][j]=0.0;
-        }
     calculate_all_channel(transmitter,receiver,channel);
 
     /*---- for each UE, send request to APs if channel > threshold ----*/
@@ -84,7 +78,7 @@ int main()
     for(int i=0; i<g_AP_number; i++){
         // check all UEs, if distance<threshold send request
         for(int j=0; j<g_UE_number; j++){
-            if (transmitter[i]->distance(receiver[j])<g_distance_threshold)
+            if (transmitter[i]->euclidean_distance(receiver[j])<g_distance_threshold)
                 receiver[j]->receiveRequest(i);
         }
     }

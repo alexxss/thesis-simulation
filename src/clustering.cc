@@ -30,10 +30,10 @@ void both_sides_connect(node* transmitter[g_AP_number], node* receiver[g_UE_numb
                     receiver[j]->connect(i);
 
                     /*--------------save to file for plot------------------
-                    repeat following for every line segment (AP-centric)
-                     <AP id> <x> <y>
-                     <UE id> <x> <y>
-                     <empty line>
+                    repeats following output for every line segment (AP-centric)
+                       <AP id> <x> <y>
+                       <UE id> <x> <y>
+                       <empty line>
                      run in cmd: `gnuplot -p plot_pair.gnu` to view plot
                     -------------------------------------------------------*/
                     fout<<transmitter[i]->location.first<<' '<<transmitter[i]->location.second<<std::endl;
