@@ -83,16 +83,16 @@ int main()
     }
 
     cout<<"UE nodes"<<endl;
-    for(int i=0; i<g_UE_number; i++) receiver[i]->printme();
+    for(int i=0; i<g_UE_number; i++) receiver[i]->printme(0);
     std::cout<<std::endl<<"AP nodes"<<std::endl;
-    for(int j=0; j<g_AP_number; j++) transmitter[j]->printme();
+    for(int j=0; j<g_AP_number; j++) transmitter[j]->printme(0);
 
     both_sides_connect(transmitter,receiver);
 
     std::cout<<"UE nodes"<<std::endl;
-    for(int i=0; i<g_UE_number; i++) receiver[i]->printme();
+    for(int i=0; i<g_UE_number; i++) receiver[i]->printme(1);
     std::cout<<std::endl<<"AP nodes"<<std::endl;
-    for(int j=0; j<g_AP_number; j++) transmitter[j]->printme();
+    for(int j=0; j<g_AP_number; j++) transmitter[j]->printme(1);
 
     return 0;
 }

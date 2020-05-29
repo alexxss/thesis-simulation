@@ -62,6 +62,12 @@ public:
     void fakesend(node* destNode);
     void fakereceive(node* srcNode);
     void printme();
+    /**
+    * \brief prints details of this node
+    * \param mode 0=print srcNodeId of received requests, 1=print ID of connected node(s)
+    *
+    */
+    void printme(const int mode);
 private:
     std::list<int> connected;
     void sendRequest();

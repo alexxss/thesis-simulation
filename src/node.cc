@@ -74,3 +74,28 @@ void node::printme(){
         std::cout<<std::endl;
     }
 }
+
+void node::printme(const int mode){
+    switch(mode){
+    case 0:
+    {
+        std::cout<<"node "<<this->id<<" received: ";
+        auto it = this->receivedRequests.begin();
+        while(it!=this->receivedRequests.end())
+            std::cout<<*it++<<" ";
+        std::cout<<std::endl;
+        break;
+    }
+    case 1:
+    {
+        std::cout<<"node "<<this->id<<" connected: ";
+        auto it = this->connected.begin();
+        while(it!=this->connected.end())
+            std::cout<<*it++<<" ";
+        std::cout<<std::endl;
+        break;
+    }
+    default:
+        std::cout<<"Should not have arrived here!!"<<std::endl;
+    }
+}
