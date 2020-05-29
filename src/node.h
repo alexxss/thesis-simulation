@@ -32,7 +32,9 @@ public:
     \param nodeB pointer to Node with whom distance will be calculated
     \return distance(double) between this node and nodeB
     */
-    double distance(const node* nodeB);
+    double plane_distance(const node* nodeB);
+
+    double euclidean_distance(const node* nodeB);
 
     /**
     \param srcNodeId
@@ -45,9 +47,9 @@ public:
     \param srcNodeId the ID of node to whom this node will be connected
     */
     void connect(const int srcNodeId);
-    
-    
-    
+
+
+
     void fakesend(node* destNode);
     void fakereceive(node* srcNode);
     void printme();

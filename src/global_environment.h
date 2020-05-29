@@ -11,6 +11,8 @@ room size 15*15*3
   - height 0.85m
 ---------------------------------------------------*/
 constexpr double g_room_dim = 15;
+constexpr double g_AP_height = 2.5;
+constexpr double g_UE_height = 0.85;
 
 constexpr int g_UE_number = 10; // range 10-70 step 10
 constexpr int g_AP_number = 64; // should be 8*8=64
@@ -28,6 +30,7 @@ gain of optical concentrator (g_oc(psi))   1
 physical area for PD receiver              1   cm^2
 reflection efficiency (rho)                0.75
 ---------------------------------------------------*/
+constexpr double g_field_of_view = 70;
 constexpr int g_PHI_half = 60;
 constexpr int g_filter_gain = 1;
 constexpr int g_concentrator_gain = 1;
