@@ -91,8 +91,9 @@ void construct_graph(node* receiver[g_AP_number],std::list<fr_node*> graph_nodes
         for(int i=0; i<g_AP_number; i++){
             if(z[id][i]==true){
                 curNode->degree ++;
-                curNode->neighbors.push_back(*it++);
+                curNode->neighbors.push_back(*it);
             }
+            it++;
         }
     }
 }
