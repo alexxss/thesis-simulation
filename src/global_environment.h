@@ -14,7 +14,7 @@ constexpr double g_room_dim = 15;
 constexpr double g_AP_height = 2.5;
 constexpr double g_UE_height = 0.85;
 
-constexpr int g_UE_number = 10; // range 10-70 step 10
+constexpr int g_UE_number = 50; // range 10-70 step 10
 constexpr int g_AP_number = 64; // should be 8*8=64
 constexpr int g_AP_per_row = 8;
 
@@ -30,9 +30,19 @@ gain of optical concentrator (g_oc(psi))   1
 physical area for PD receiver              1   cm^2
 reflection efficiency (rho)                0.75
 ---------------------------------------------------*/
-constexpr double g_field_of_view = 70;
+constexpr double g_field_of_view = 100;
 constexpr int g_PHI_half = 60;
 constexpr int g_filter_gain = 1;
 constexpr int g_concentrator_gain = 1;
 constexpr int g_receiver_area = 1;
 constexpr double g_reflect_efficiency = 0.75;
+
+/*---------------------------------------------------
+           FREQUENCY REUSE CONSTANTS (?)
+reuse factor (rho, number of resource blocks)    1-4 step 1
+total bandiwdth (B)                              50 MHz
+---------------------------------------------------*/
+
+constexpr int g_frequency_reuse_factor = 4; // RB id range from 0 to g_frequency_reuse_factor-1
+constexpr double g_total_bandwidth = 50;
+constexpr double g_bandwidth_per_rb = g_total_bandwidth / g_frequency_reuse_factor;

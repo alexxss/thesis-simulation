@@ -57,10 +57,14 @@ public:
     */
     void connect(const int srcNodeId);
 
+    void set_resource_block(const int& rb_id);
+    int get_resource_block();
+    std::list<int> get_connected();
 
-
+    /* currently unused, just two test functions */
     void fakesend(node* destNode);
     void fakereceive(node* srcNode);
+
     void printme();
     /**
     * \brief prints details of this node
@@ -69,6 +73,7 @@ public:
     */
     void printme(const int mode);
 private:
+    int resource_block_id;
     std::list<int> connected;
     void sendRequest();
     std::list<int> receivedRequests;

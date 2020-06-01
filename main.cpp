@@ -7,6 +7,9 @@
 #ifndef CHANNEL
 #include "src/channel.h"
 #endif // CHANNEL
+#ifndef FREQUENCYREUSE
+#include "src/frequencyreuse.h"
+#endif // FREQUENCYREUSE
 
 #include <iostream>
 #include <stdlib.h> //rand
@@ -51,7 +54,7 @@ int main()
         transmitter[i]=new node(i); // AP
     // generate UE node
     uniform_real_distribution<double> unif(0.0, g_room_dim);
-    default_random_engine re;
+    default_random_engine re; // TODO (alex#2#): remember to seed
     for (int i=0; i<g_UE_number; i++)
         receiver[i] = new node(i,unif(re), unif(re)); // UE
 
@@ -93,6 +96,12 @@ int main()
     for(int i=0; i<g_UE_number; i++) receiver[i]->printme(1);
     std::cout<<std::endl<<"AP nodes"<<std::endl;
     for(int j=0; j<g_AP_number; j++) transmitter[j]->printme(1);
+
+    frequency_reuse(transmitter,receiver);
+
+  //  save_fr_relationship(transmitter);
+
+  //  assign_rb(transmitter);
 
     return 0;
 }

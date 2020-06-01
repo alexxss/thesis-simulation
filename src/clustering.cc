@@ -31,8 +31,8 @@ void both_sides_connect(node* transmitter[g_AP_number], node* receiver[g_UE_numb
 
                     /*--------------save to file for plot------------------
                     repeats following output for every line segment (AP-centric)
-                       <AP id> <x> <y>
-                       <UE id> <x> <y>
+                       <AP x> <AP y>
+                       <UE x> <UE y>
                        <empty line>
                      run in cmd: `gnuplot -p plot_pair.gnu` to view plot
                     -------------------------------------------------------*/

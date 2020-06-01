@@ -13,11 +13,13 @@ node::node(int id){
     double x = ((id%g_AP_per_row)+1)*(g_room_dim/(g_AP_per_row+1));
     double y = (g_AP_per_row-(id/g_AP_per_row))*(g_room_dim/(g_AP_per_row+1));
     this->location = std::pair<double,double>(x,y);
+    this->resource_block_id = -1;
 }
 
 node::node(int id, double x, double y){
     this->id = id;
     this->location = std::pair<double,double>(x,y);
+    this->resource_block_id = -1;
 }
 
 void node::receiveRequest(int srcNodeId){
@@ -48,6 +50,18 @@ bool node::hasRequest(const int srcNodeId){
 void node::connect(const int srcNode){
     this->receivedRequests.remove(srcNode);
     this->connected.push_back(srcNode);
+}
+
+std::list<int> node::get_connected(){
+    return this->connected;
+}
+
+void node::set_resource_block(const int& rb_id){
+    this->resource_block_id = rb_id;
+}
+
+int node::get_resource_block(){
+    return this->resource_block_id;
 }
 
 void node::fakesend(node* destNode){
