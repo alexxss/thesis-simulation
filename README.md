@@ -13,13 +13,24 @@ Structure:
   |- node.h  
 ```
 
-After executing the program, 3 `.dat` files will be generated. \
-To view AP and UE's location in room, run `gnuplot -p plot_room.gnu`. \
-Use `gnuplot -p plot_pair.gnu` instead to show AP and UE's relationship as well.
+After executing the program, `.dat` files will be generated. You can use gnuplot to visualize them.\
+To view AP and UE's location in room: 
+```
+gnuplot -p plot_room.gnu
+```
+To show AP and UE's association and location:
+```
+gnuplot -p plot_pair.gnu
+```
+To show all of above + AP's assigned RB \#:
+```
+gnuplot -p plot_fr.gnu
+```
 
 ## TODO
 - [x] Use channel formula
-- [ ] Resource block allocation (graph?!)
+- [x] Resource block allocation (graph?!)
+- [ ] Output data for integration with NS-3
 
 ## Note
 - Angle(s) of irradiance and incidence:
