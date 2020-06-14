@@ -46,3 +46,10 @@ total bandiwdth (B)                              50 MHz
 constexpr int g_frequency_reuse_factor = 4; // RB id range from 0 to g_frequency_reuse_factor-1
 constexpr double g_total_bandwidth = 50;
 constexpr double g_bandwidth_per_rb = g_total_bandwidth / g_frequency_reuse_factor;
+
+/*---------------------------------------------------
+                TDMA CONSTANT
+maximum load per AP (Gamma)    2-5 step 1
+---------------------------------------------------*/
+constexpr int g_maximum_load_per_AP = 3;
+constexpr double g_total_time = 1.0; // unit is "second"

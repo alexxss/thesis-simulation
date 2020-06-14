@@ -6,6 +6,7 @@
 
 #include<utility> //pair
 #include<list> //list
+#include<vector>
 
 class node{
 public:
@@ -61,6 +62,8 @@ public:
     int get_resource_block();
     std::list<int> get_connected();
 
+    void tdma();
+
     /* currently unused, just two test functions */
     void fakesend(node* destNode);
     void fakereceive(node* srcNode);
@@ -68,8 +71,10 @@ public:
     void printme();
     /**
     * \brief prints details of this node
-    * \param mode 0=print srcNodeId of received requests, 1=print ID of connected node(s)
-    *
+    * \param mode 0,1,2
+    * 0= print srcNodeId of received requests
+    * 1= print ID of connected node(s)
+    * 2= print time slot schedule
     */
     void printme(const int mode);
 private:
@@ -77,4 +82,10 @@ private:
     std::list<int> connected;
     void sendRequest();
     std::list<int> receivedRequests;
+    int servedUE_cnt;
+    std::list<double> time_allocation;
+    void tdma_scheduling();
+    void tdma_time_allocation();
+    std::list<std::list<int>> time_slot_schedule;
+    std::list<int> dynamic_resource_allocation(const std::vector<int>& candidate);
 };

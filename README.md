@@ -29,8 +29,11 @@ gnuplot -p plot_fr.gnu
 
 ## TODO
 - [x] Use channel formula
+- [ ] NLOS channel
 - [x] Resource block allocation (graph?!)
-- [ ] Output data for integration with NS-3
+- [x] Output data for integration with NS-3
+- [ ] TDMA
+- [ ] Dynamic 2-Tier RA
 
 ## Note
 - Angle(s) of irradiance and incidence:
@@ -41,4 +44,4 @@ when "semi-angle at half illuminance" = 60 deg, "order of Lambertian emission" =
    - [This paper](https://www.researchgate.net/publication/337551362) gives different formula to calculate.
    - i am confusion. america exblain
 
-> [time=Sat, May 30, 2020 04:08 AM]
+> [time=Fri, Jun 12, 2020 11:39 PM]

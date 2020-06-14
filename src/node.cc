@@ -64,6 +64,12 @@ int node::get_resource_block(){
     return this->resource_block_id;
 }
 
+//void node::tdma_scheduling(){}
+
+//void node::tdma_time_allocation(){}
+
+//void node::tdma(){}
+
 void node::fakesend(node* destNode){
     std::cout<<this->id<<" send to "<<destNode->id<<std::endl;
     destNode->fakereceive(this);
@@ -106,6 +112,24 @@ void node::printme(const int mode){
         auto it = this->connected.begin();
         while(it!=this->connected.end())
             std::cout<<*it++<<" ";
+        std::cout<<std::endl;
+        break;
+    }
+    case 2:
+    {
+        std::cout<<"node "<<this->id<<" time slot schedule: ";
+        for(std::list<int> slot : this->time_slot_schedule){
+            std::cout<<"( ";
+            for(int i:slot) std::cout<<i<<' ';
+            std::cout<<") ";
+        }
+        std::cout<<std::endl;
+        break;
+    }
+    case 3:
+    {
+        std::cout<<"node "<<this->id<<" time resource: ";
+        for(double i:this->time_allocation) std::cout<<i<<' ';
         std::cout<<std::endl;
         break;
     }
