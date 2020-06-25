@@ -77,6 +77,14 @@ public:
     * 2= print time slot schedule
     */
     void printme(const int mode);
+
+    /*
+        static member to hold instances
+        // TODO (alex#3#): replace main.cpp's transmitter and receiver array with these instead
+        example usage: `node::transmitter[i]`
+    */
+    static node* transmitter[g_AP_number];
+    static node* receiver[g_UE_number];
 private:
     int resource_block_id;
     std::list<int> connected;

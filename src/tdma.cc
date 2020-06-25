@@ -26,7 +26,7 @@ void node::tdma_scheduling(){
         int K = pool.size() < g_maximum_load_per_AP ? pool.size() : g_maximum_load_per_AP;
 
         /* rand select K UEs from pool */
-        std::cout<<"-- Selecting "<<K<<" UEs from pool { "; for(int i:pool) std::cout<<i<<' '; std::cout<<"}\n";
+        //std::cout<<"-- Selecting "<<K<<" UEs from pool { "; for(int i:pool) std::cout<<i<<' '; std::cout<<"}\n";
 
         // copy pool into candidate
         std::vector<int> candidate;
@@ -39,7 +39,7 @@ void node::tdma_scheduling(){
 
         /* try to RA */
         std::list<int> accepted = this->dynamic_resource_allocation(candidate);
-        std::cout<<"-- Accepted: "; for(int i:accepted)std::cout<<i<<' '; std::cout<<'\n';
+        //std::cout<<"-- Accepted: "; for(int i:accepted)std::cout<<i<<' '; std::cout<<'\n';
 
         /* remove successful UE from pool */
         if (accepted.empty()) break;
@@ -63,17 +63,17 @@ void node::tdma_time_allocation(){
     int servedUE_cnt = this->servedUE_cnt, connectedUE_cnt = (this->get_connected()).size();
 
     if (connectedUE_cnt==0) {
-        std::cout<<"-- no clustered UE.\n";
+        //std::cout<<"-- no clustered UE.\n";
         return;
     }
     if (servedUE_cnt==0) {
-        std::cout<<"-- no served UE.\n";
+        //std::cout<<"-- no served UE.\n";
         return;
     }
 
     if (servedUE_cnt == connectedUE_cnt){
         /* no rejected UE */
-        std::cout<<"-- all UEs accepted\n";
+        //std::cout<<"-- all UEs accepted\n";
         for(std::list<int> slot:this->time_slot_schedule){
             double t_g = (double)slot.size()/connectedUE_cnt * g_total_time;
             this->time_allocation.push_back(t_g);
@@ -81,14 +81,14 @@ void node::tdma_time_allocation(){
     } else if (servedUE_cnt < connectedUE_cnt){
         /* has rejected UE */
         int rejectedUE_cnt = connectedUE_cnt - servedUE_cnt;
-        std::cout<<"-- rejected "<< rejectedUE_cnt <<" UEs\n";
+        //std::cout<<"-- rejected "<< rejectedUE_cnt <<" UEs\n";
         for(std::list<int> slot:this->time_slot_schedule){
             double t_g = ((double)slot.size()/connectedUE_cnt) + ((double)rejectedUE_cnt * slot.size())/(connectedUE_cnt * servedUE_cnt);
             t_g = t_g * g_total_time;
             this->time_allocation.push_back(t_g);
         }
     } else {
-        std::cout<<"-- served UE > clustered UE! impossible. something is wrong.\n";
+        //std::cout<<"-- served UE > clustered UE! impossible. something is wrong.\n";
         exit(1);
     }
 }
@@ -96,7 +96,7 @@ void node::tdma_time_allocation(){
 void node::tdma(){
     std::cout<<"TDMA for transmitter "<<this->id<<std::endl;
     this->tdma_scheduling();
-    this->printme(2); // print scheduling result
+    this->printme(2); // print schedule
     this->tdma_time_allocation();
-    this->printme(3);
+    this->printme(3); // print allocated time resource
 }

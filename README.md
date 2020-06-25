@@ -32,8 +32,9 @@ gnuplot -p plot_fr.gnu
 - [ ] NLOS channel
 - [x] Resource block allocation (graph?!)
 - [x] Output data for integration with NS-3
-- [ ] TDMA
-- [ ] Dynamic 2-Tier RA
+- [x] TDMA
+- [ ] Dynamic RA: 1st Tier
+- [ ] Dynamic RA: 2nd Tier
 
 ## Note
 - Angle(s) of irradiance and incidence:

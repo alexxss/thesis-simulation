@@ -44,19 +44,28 @@ void save_room_data(node* receiver[g_UE_number], node* transmitter[g_AP_number])
 
 }
 
+/*          init node static member       */
+node* node::transmitter[g_AP_number] = {0};
+node* node::receiver[g_UE_number] = {0};
+
 int main()
 {
     /*-------------initialization----------------*/
     node* transmitter [g_AP_number]; // AP
     node* receiver [g_UE_number];    // UE
+
     // generate AP node
-    for (int i=0; i<g_AP_number; i++)
+    for (int i=0; i<g_AP_number; i++){
         transmitter[i]=new node(i); // AP
+        node::transmitter[i] = transmitter[i];
+    }
     // generate UE node
     uniform_real_distribution<double> unif(0.0, g_room_dim);
     default_random_engine re; // TODO (alex#2#): remember to seed
-    for (int i=0; i<g_UE_number; i++)
+    for (int i=0; i<g_UE_number; i++){
         receiver[i] = new node(i,unif(re), unif(re)); // UE
+        node::receiver[i] = receiver[i];
+    }
 
     /*--------------save to file for plot------------------
      run in cmd: `gnuplot -p plot_room.gnu` to view plot
