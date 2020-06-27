@@ -19,9 +19,9 @@ bool z[g_AP_number][g_AP_number]={false};
 void print(){
     for(int i=0; i<g_AP_number;i++){
         for(int j=0; j<g_AP_number;j++){
-            std::cout<<z[i][j]<<' ';
+            //std::cout<<z[i][j]<<' ';
         }
-        std::cout<<std::endl;
+        //std::cout<<std::endl;
     }
 }
 
@@ -29,19 +29,19 @@ void print(){
 void print(const std::list<int> &overlapped_APs){
     auto it = overlapped_APs.begin();
     while(it!=overlapped_APs.end()){
-        std::cout<<*it++<<' ';
+        //std::cout<<*it++<<' ';
     }
 }
 
 /* print transmitter id & degree in graph */
 void print(const std::list<fr_node*> graph_nodes){
-    std::cout<<"AP nodes in FR graph: ";
+    //std::cout<<"AP nodes in FR graph: ";
     auto it = graph_nodes.begin();
     while(it!=graph_nodes.end()){
-        std::cout<<std::endl<<(*it)->transmitter->id<<' '<<(*it)->degree;
+        //std::cout<<std::endl<<(*it)->transmitter->id<<' '<<(*it)->degree;
         it++;
     }
-    std::cout<<std::endl;
+    //std::cout<<std::endl;
 }
 
 /* save frequency reuse data to file */
@@ -85,7 +85,7 @@ void set_relationship_true(const std::list<int> &overlapped_APs){
 
 void construct_graph(node* receiver[g_AP_number],std::list<fr_node*> graph_nodes){
     /* for all UE, set all of its connected APs as overlapped */
-    std::cout<<"Setting overlapped APs relationship in z[][]..."<<std::endl;
+    //std::cout<<"Setting overlapped APs relationship in z[][]..."<<std::endl;
     for(int i=0; i<g_UE_number;i++){
         set_relationship_true(receiver[i]->get_connected());
     }
@@ -93,7 +93,7 @@ void construct_graph(node* receiver[g_AP_number],std::list<fr_node*> graph_nodes
     // print(); //print z[][]
 
     /* update degree and neighbours of graph nodes according to z[][] */
-    std::cout<<"Updating graph nodes..."<<std::endl;
+    //std::cout<<"Updating graph nodes..."<<std::endl;
     for(fr_node* curNode : graph_nodes){
         int id = curNode->transmitter->id;
         curNode->degree = 0;
@@ -122,7 +122,7 @@ std::list<int> fr_node::get_rb_candidate(){
             rb_occupied[rb]=true;
             rb_candidate.remove(rb);
             if (rb_candidate.size()==0) {
-                std::cout<<this->transmitter->id<<"'s neighbors occupied all RBs"<<std::endl<<"-- ";
+                //std::cout<<this->transmitter->id<<"'s neighbors occupied all RBs"<<std::endl<<"-- ";
                 return rb_candidate;
             }
         }
@@ -135,7 +135,7 @@ bool fr_node::if_RB_repeat(const int& rb_id){
 
     for(fr_node* n : this->neighbors){
         if(n->transmitter->get_resource_block()==rb_id){
-            std::cout<<n->transmitter->id<<" has already occupied RB #"<<rb_id<<std::endl<<"-- ";
+            //std::cout<<n->transmitter->id<<" has already occupied RB #"<<rb_id<<std::endl<<"-- ";
             return true;
         }
     }
@@ -145,7 +145,7 @@ bool fr_node::if_RB_repeat(const int& rb_id){
 void assign_rb(std::list<fr_node*> graph_nodes){
 
     //print(graph_nodes);
-    std::cout<<"Sorting graph nodes by degree..."<<std::endl;
+    //std::cout<<"Sorting graph nodes by degree..."<<std::endl;
     graph_nodes.sort(compare_fr_node);
 
     //print(graph_nodes);
@@ -155,7 +155,7 @@ void assign_rb(std::list<fr_node*> graph_nodes){
     auto it = graph_nodes.begin();
     while(it!=graph_nodes.end()){
         if(reuse_factor >= g_frequency_reuse_factor) break;
-        std::cout<<(*it)->transmitter->id<<" gets RB #"<<reuse_factor<<std::endl;
+        //std::cout<<(*it)->transmitter->id<<" gets RB #"<<reuse_factor<<std::endl;
         (*it++)->transmitter->set_resource_block(reuse_factor++);
     }
 
@@ -170,11 +170,11 @@ void assign_rb(std::list<fr_node*> graph_nodes){
               /* check if repeat, rand() until no longer while */
 //            std::uniform_int_distribution<int>::param_type parm = std::uniform_int_distribution<int>::param_type(0,rb_candidate.size());
 //            unif.param(parm);
-            std::cout<<(*it)->transmitter->id<<" has to check for repeating RB"<<std::endl<<"-- ";
+            //std::cout<<(*it)->transmitter->id<<" has to check for repeating RB"<<std::endl<<"-- ";
             while((*it)->if_RB_repeat(rb_id)) rb_id = unif(re);
         }
         (*it)->transmitter->set_resource_block(rb_id);
-        std::cout<<(*it)->transmitter->id<<" gets RB #"<<rb_id<<std::endl;
+        //std::cout<<(*it)->transmitter->id<<" gets RB #"<<rb_id<<std::endl;
         it++;
     }
 }

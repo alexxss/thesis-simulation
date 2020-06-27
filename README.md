@@ -1,17 +1,5 @@
 # Thesis Simulation
 Environment constants can be found in *src/global\_environment.h*.  
-Structure:  
-```
-- main.cpp
-+ /src
-  |- global_environment.h  
-  |- channel.cc  
-  |- channel.h  
-  |- clustering.cc  
-  |- clustering.h  
-  |- node.cc  
-  |- node.h  
-```
 
 After executing the program, `.dat` files will be generated. You can use gnuplot to visualize them.\
 To view AP and UE's location in room: 
@@ -27,13 +15,16 @@ To show all of above + AP's assigned RB \#:
 gnuplot -p plot_fr.gnu
 ```
 
+log files for 1st Tier Resource Allocation can be found under `./log/`
+
 ## TODO
 - [x] Use channel formula
 - [ ] NLOS channel
 - [x] Resource block allocation (graph?!)
 - [x] Output data for integration with NS-3
 - [x] TDMA
-- [ ] Dynamic RA: 1st Tier
+- [x] Dynamic RA: 1st Tier
+- [ ] Remove candidate modulation schemes that does not fit requirement
 - [ ] Dynamic RA: 2nd Tier
 
 ## Note
@@ -45,4 +36,4 @@ when "semi-angle at half illuminance" = 60 deg, "order of Lambertian emission" =
    - [This paper](https://www.researchgate.net/publication/337551362) gives different formula to calculate.
    - i am confusion. america exblain
 
-> [time=Fri, Jun 12, 2020 11:39 PM]
+> [time=Sun, Jun 28, 2020 03:07 AM]

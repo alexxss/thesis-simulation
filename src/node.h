@@ -64,6 +64,14 @@ public:
 
     void tdma();
 
+    /**
+    * \brief calculate r of UE k using mod m on layer l
+    * \param const int& m: which modulation mode
+    * \param const int& l: which layer
+    * \return double: the achievable rate
+    */
+    double calculate_achievable_rate_single_layer(const int& m, const int& l);
+
     /* currently unused, just two test functions */
     void fakesend(node* destNode);
     void fakereceive(node* srcNode);

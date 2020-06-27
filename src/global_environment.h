@@ -58,7 +58,7 @@ constexpr double g_total_time = 1.0; // unit is "second"
               Resource Allocation CONSTANT
 power constraint                             10 W per AP
 minimum rate requirement                     0-150 Mbits/s
-backhaul constraint                          1 Gbit/s = 1e9 bit/s
+backhaul constraint                          1 Gbit/s = 1e3Mbit/s = 1e9 bit/s
 number of rate limit levels (J)              100
 number of power limit levels (I)             20
 number of layers (L)                         4
@@ -66,7 +66,7 @@ number of available modulation modes         5 (BPSK, 4-QAM, 16-QAM, 64-QAM, 256
 BER                                          0.00001
 ----------------------------------------------------*/
 constexpr double g_P_max = 10; // W
-constexpr double g_R_max = 1000000000; // bit per second
+constexpr double g_R_max = 1000; // bit per second
 constexpr int g_J = 100;
 constexpr int g_I = 20;
 constexpr int g_L = 4;
