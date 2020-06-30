@@ -44,10 +44,12 @@
 #define erfinv_d1 3.543889200
 #define erfinv_d0 1
 
+#include<math.h>
+
 #ifdef WIN32
 double erfinv (double x)
 {
-  it_fprintf (stderr, "undefined function erf()\n");
+  //it_fprintf ("undefined function erf()\n");
   return (NAN);
 }
 #else
