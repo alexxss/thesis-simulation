@@ -24,7 +24,7 @@ log files for 1st Tier Resource Allocation can be found under `./log/`
 - [x] Output data for integration with NS-3
 - [x] TDMA
 - [x] Dynamic RA: 1st Tier
-- [ ] Remove candidate modulation schemes that does not fit requirement
+- [x] Remove candidate modulation schemes that does not fit requirement
 - [ ] Dynamic RA: 2nd Tier
 
 ## Note

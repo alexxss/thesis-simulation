@@ -12,6 +12,7 @@ class node{
 public:
     int id;
     std::pair<double,double> location;
+    double min_required_rate;
 
     node(int id);
 

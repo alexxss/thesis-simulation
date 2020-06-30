@@ -67,6 +67,7 @@ BER                                          0.00001
 ----------------------------------------------------*/
 constexpr double g_P_max = 10; // W
 constexpr double g_R_max = 1000; // bit per second
+constexpr double g_R_min = 150;
 constexpr int g_J = 100;
 constexpr int g_I = 20;
 constexpr int g_L = 4;

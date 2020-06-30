@@ -108,12 +108,9 @@ int main()
 */
     frequency_reuse(transmitter,receiver);
 
-    // TODO: tdma
     for(node* n : transmitter){
         n->tdma();
     }
-
-    // TODO: backpack RA
 
     return 0;
 }

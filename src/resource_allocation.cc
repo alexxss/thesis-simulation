@@ -1,7 +1,6 @@
 #include "node.h"
 #include <random> // uniform_real_distribution, default_random_engine
-#include <list>
-#include <vector>
+#include <list> // std::list
 #include <iostream>
 #include <fstream> // ofstream
 #include <chrono> // seed
@@ -47,16 +46,19 @@ double node::calculate_achievable_rate_single_layer(const int& m, const int& l){
 *          [2] calculate achievate rate at rate constraint (R_j - r) using layers 1 to (l-1): T
 *          [3] t_m = T + r
 *       obtain ahievable rate at rate constraint R_j using layers 1 to l: max(t_m)
+*
+* \return list<mod_scheme*> list of mod schemes that satisfy min rate
 */
-void ra_first_tier(const int& candidate_id){
+std::list<mod_scheme*> ra_first_tier(const int& candidate_id){
     node* node_UE = node::receiver[candidate_id];
+    std::list<mod_scheme*> candidate_schemes;
     std::cout<<"-- 1st Tier RA for UE "<<node_UE->id<<std::endl;
     struct mod_scheme* my_mod_schemes[g_L][g_J]; // used to store mod schemes for all l and j
 
     std::string filepath = "./log/" + std::to_string(node_UE->id) + "_first_tier";
     std::ofstream fout(filepath);
     if(!fout.is_open()) {
-        std::cout<<"Can't Open "<<filepath<<", exitting now";
+        std::cout<<"Can't Open "<<filepath<<", exiting now";
         exit(1);
     }
 
@@ -82,7 +84,7 @@ void ra_first_tier(const int& candidate_id){
 
                 /**     calculate t_m = T + r */
                 /* initialize mod scheme combination */
-                std::vector<int> current_mod_combi;
+                std::list<int> current_mod_combi;
                 /* if >1st layer, t_m initialize as T_(k,l-1)(R_j-r) */
                 double t_m = 0.0;
                 double R_j = (double)g_R_max / g_J * j;
@@ -125,16 +127,46 @@ void ra_first_tier(const int& candidate_id){
             //fout<<"                          \t";
             for(int i:current_mod_scheme->modes_each_layer) fout<<i<<' ';
             fout<<std::endl;
+
+            if (current_mod_scheme->sum_throughput >= node_UE->min_required_rate && current_mod_scheme->sum_throughput < g_R_max){
+                candidate_schemes.push_back(current_mod_scheme);
+            }
         }
     }
     fout.close();
+    return candidate_schemes;
 }
 
-/* this member function should only be called by an AP node */
+/** second tier
+* \return list of accept UEs' id
+*/
+std::list<int> ra_second_tier(const std::list<std::pair<int, std::list<mod_scheme*>>>& all_candidate_mod_scheme_set){
+    int UE_number = all_candidate_mod_scheme_set.size();
+
+    for(auto candidate_scheme_set : all_candidate_mod_scheme_set){
+        for(int l = 1; l<=g_L; l++){ // l is power constraint level
+            double P_l = g_P_max * l / g_L;
+            /** determine best scheme under P_l */
+
+            /** save scheme */
+            // mod_scheme_combi* mod_scheme_combination = new mod_scheme_combi;
+            // mod_scheme_combination->sum_throughput = ??
+            // mod_scheme_combination->required_power = ??
+            // mod_scheme_combination->mod_schemes_each_UE = ??
+        }
+    }
+}
+
+/** this member function should only be called by an AP node */
 std::list<int> node::dynamic_resource_allocation(const std::vector<int>& candidate){
+    /* a list of pair<UE_id, list_of_candidate_schemes_of_this_UE> */
+    std::list<std::pair<int, std::list<mod_scheme*>>> all_candidate_mod_scheme_set;
+
     /* first tier RA: generate mod schemes for each UE */
     for(int candidate_id:candidate){
-        ra_first_tier(candidate_id);
+        std::pair<int,std::list<mod_scheme*>> all_candidate_mod_scheme;
+        all_candidate_mod_scheme.first = candidate_id;
+        all_candidate_mod_scheme.second = ra_first_tier(candidate_id);
     }
 
     /* second tier RA: select scheme combination */

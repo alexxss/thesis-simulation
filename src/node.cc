@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <random>
 
 node::node(int id){
     this->id = id;
@@ -14,12 +15,20 @@ node::node(int id){
     double y = (g_AP_per_row-(id/g_AP_per_row))*(g_room_dim/(g_AP_per_row+1));
     this->location = std::pair<double,double>(x,y);
     this->resource_block_id = -1;
+    /* generate random minimum rate */
+    std::uniform_real_distribution<double> unif(0.0, g_R_min);
+    std::default_random_engine re; // TODO (alex#2#): remember to seed
+    this->min_required_rate = unif(re);
 }
 
 node::node(int id, double x, double y){
     this->id = id;
     this->location = std::pair<double,double>(x,y);
     this->resource_block_id = -1;
+    /* generate random minimum rate */
+    std::uniform_real_distribution<double> unif(0.0, g_R_min);
+    std::default_random_engine re; // TODO (alex#2#): remember to seed
+    this->min_required_rate = unif(re);
 }
 
 void node::receiveRequest(int srcNodeId){
