@@ -1,4 +1,5 @@
 #include "node.h"
+#include "channel.h" // calculate channel
 #include <random> // uniform_real_distribution, default_random_engine
 #include <list> // std::list
 #include <iostream>
@@ -20,8 +21,7 @@ int jFloor(double const& rateConstraintForPrevLayer){
     return j_star;
 }
 
-double node::calculate_achievable_rate_single_layer(const int& m, const int& l){
-    /* BER(m) -> SINR */
+double SINR_single_layer(const int& m){
     double SINR = 0.0;
     SINR = g_BER;
     SINR = SINR * m * pow(2,m);
@@ -30,6 +30,12 @@ double node::calculate_achievable_rate_single_layer(const int& m, const int& l){
     SINR = erfinv(SINR);
     SINR = pow(SINR,2);
     SINR = SINR / 3 * 2 * ( pow(2,2*m) - 1);
+    return SINR;
+}
+
+double node::calculate_achievable_rate_single_layer(const int& m, const int& l){
+    /* BER(m) -> SINR */
+    double SINR = SINR_single_layer(m);
 
     /* SINR(B,beta_l,SINR) -> rate */
     double rate = 0.0;
@@ -137,16 +143,46 @@ std::list<mod_scheme*> ra_first_tier(const int& candidate_id){
     return candidate_schemes;
 }
 
+/**
+* calculate required power of given UE using given candidate modulation scheme,
+* \param UE_id id of UE k
+* \param candidate_scheme scheme to be used in calculation
+* \return double required power
+*/
+double power_required(const int& AP_id, const int& UE_id, const mod_scheme &candidate_scheme, const double &prev_UEs_power){
+    /* for each layer used in candidate_scheme: calculate power required for that layer */
+    for(int m : candidate_scheme.modes_each_layer){
+        /* SINR of this layer */
+        double SINR = SINR_single_layer(m);
+        /* interference from prev UEs (1 to k-1) */
+        double intra_I = prev_UEs_power * calculate_one_channel(node::transmitter[AP_id], node::receiver[UE_id]);
+        /* AWGN */
+        double AWGN = g_total_bandwidth * g_N_0;
+        /* inter-cell-interference I_n,k */
+        double ICI = ?? // requires UE's sorting order in other clusters.......
+    }
+
+    /* total power required by this scheme? */
+}
+
 /** second tier
 * \return list of accept UEs' id
 */
 std::list<int> ra_second_tier(const std::list<std::pair<int, std::list<mod_scheme*>>>& all_candidate_mod_scheme_set){
-    int UE_number = all_candidate_mod_scheme_set.size();
+    std::list<int> accepted_UEs;
+    std::list<mod_scheme_combi*> mod_combi_each_constraint_up_to_prev_UE; // each l-th element = scheme combi from row(UE) 1 to prev under constraint l
+    for(int l=1;l<=g_L;l++) mod_combi_each_constraint_up_to_prev_UE.push_back(new mod_scheme_combi); // init
+
+    // TODO (alex#1#): sort UEs according to channel in desc order!! (UE 1 has highest channel)
 
     for(auto candidate_scheme_set : all_candidate_mod_scheme_set){
+        int UE_id = candidate_scheme_set.first;
         for(int l = 1; l<=g_L; l++){ // l is power constraint level
             double P_l = g_P_max * l / g_L;
             /** determine best scheme under P_l */
+            // calculate required power for each scheme
+            // select scheme (highest sumRate, sumPower within constraint)
+            // if no affordable scheme?
 
             /** save scheme */
             // mod_scheme_combi* mod_scheme_combination = new mod_scheme_combi;

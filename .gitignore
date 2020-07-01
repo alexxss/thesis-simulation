@@ -1,0 +1,11 @@
+*.save
+*.cbp
+*.depend
+*.layout
+*.sh
+*.dat
+*.png
+bin/*
+obj/*
+log/*
+plot_fordocument.gnu
