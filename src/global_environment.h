@@ -64,6 +64,7 @@ number of power limit levels (I)             20
 number of layers (L)                         4
 number of available modulation modes         5 (BPSK, 4-QAM, 16-QAM, 64-QAM, 256-QAM)
 BER                                          0.00001
+AWGN power spectral density N_0              10^-22 A2/Hz = 10^-16 A2/MHz
 ----------------------------------------------------*/
 constexpr double g_P_max = 10; // W
 constexpr double g_R_max = 1000; // bit per second
@@ -73,3 +74,4 @@ constexpr int g_I = 20;
 constexpr int g_L = 4;
 constexpr int g_M = 5;
 constexpr double g_BER = 0.00001;
+constexpr double g_N_0 = 0.0000000000000001;
