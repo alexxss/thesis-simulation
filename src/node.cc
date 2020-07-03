@@ -8,6 +8,7 @@
 #include <iostream>
 #include <math.h>
 #include <random>
+#include <algorithm> // std::sort
 
 node::node(int id){
     this->id = id;
@@ -65,6 +66,32 @@ std::list<int> node::get_connected(){
     return this->connected;
 }
 
+struct UE_compare_channel_desc{
+    UE_compare_channel_desc(const int& AP_id){this->AP_id = AP_id;}
+    bool operator() (const int& UE_a, const int& UE_b) {
+        const double& channel_AP_a = node::channel[AP_id][UE_a];
+        const double& channel_AP_b = node::channel[AP_id][UE_b];
+        return channel_AP_a >= channel_AP_b;
+    }
+    int AP_id;
+};
+
+void node::NOMA_sort_UE_desc(){
+    std::list<int> UE_list = this->get_connected(); // copies list of all connected UEs
+    UE_list.sort(UE_compare_channel_desc(this->id));
+    this->sorted_UE = UE_list;
+}
+
+int node::get_sorting_order (const int& UE_id) const {
+    std::list<int> sorted_UE = this->sorted_UE;
+    std::list<int>::iterator it = std::find(sorted_UE.begin(),sorted_UE.end(),UE_id);
+    if (it==sorted_UE.end()) {
+        return -1; // UE_id is not in the sorted_UE list!!!
+    }
+    int order = std::distance(sorted_UE.begin(),it);
+    return order;
+}
+
 void node::set_resource_block(const int& rb_id){
     this->resource_block_id = rb_id;
 }
@@ -78,6 +105,17 @@ int node::get_resource_block(){
 //void node::tdma_time_allocation(){}
 
 //void node::tdma(){}
+
+double node::calculate_ICI(const int& UE_id){
+    int order = this->get_sorting_order(UE_id);
+    double channel_AP_UE = node::channel[this->id][UE_id];
+    double ICI = channel_AP_UE*channel_AP_UE*g_P_max;
+    if (order==-1){ // if UE not associated with this AP
+        return ICI;
+    } else {
+        return order / this->servedUE_cnt * ICI;
+    }
+}
 
 void node::fakesend(node* destNode){
     std::cout<<this->id<<" send to "<<destNode->id<<std::endl;

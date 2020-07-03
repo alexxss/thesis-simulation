@@ -59,6 +59,21 @@ public:
     */
     void connect(const int srcNodeId);
 
+    /**
+    * sort UEs according to channel (h_1 > h_2 > ...),
+    * required by NOMA.
+    * sorting UE id saved in std::list<int> node::sorted_UE
+    * \param channel 2d array of channel [ap][ue]
+    */
+    void NOMA_sort_UE_desc();
+
+    /**
+    * \brief gets UE's sorting order in this AP's cluster
+    * \param UE id
+    * \return int sorting order [1:|U_n|], -1 if not found
+    */
+    int get_sorting_order (const int& UE_id) const ;
+
     void set_resource_block(const int& rb_id);
     int get_resource_block();
     std::list<int> get_connected();
@@ -72,6 +87,12 @@ public:
     * \return double: the achievable rate
     */
     double calculate_achievable_rate_single_layer(const int& m, const int& l);
+
+    /**
+    * \brief calculates ICI imposed by this node (AP) on node UE_id
+    * this function should only be called by an AP node!
+    */
+    double calculate_ICI(const int& UE_id);
 
     /* currently unused, just two test functions */
     void fakesend(node* destNode);
@@ -94,15 +115,17 @@ public:
     */
     static node* transmitter[g_AP_number];
     static node* receiver[g_UE_number];
+    static double channel[g_AP_number][g_UE_number];
 private:
     int resource_block_id;
     std::list<int> connected;
     void sendRequest();
     std::list<int> receivedRequests;
     int servedUE_cnt;
+    std::list<int> sorted_UE;
     std::list<double> time_allocation;
     void tdma_scheduling();
     void tdma_time_allocation();
     std::list<std::list<int>> time_slot_schedule;
-    std::list<int> dynamic_resource_allocation(const std::vector<int>& candidate);
+    std::list<int> dynamic_resource_allocation(std::vector<int>& candidate);
 };
