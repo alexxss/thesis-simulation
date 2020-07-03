@@ -111,13 +111,17 @@ std::list<mod_scheme*> ra_first_tier(const int& candidate_id){
                     R_j = R_j-r_m;
                     if (R_j < 0) {// if R_j - r < 0, t_m = 0.
                         t_m = 0;
-                        current_mod_combi.push_back(-1);// this mod CANNOT be chosen.
+                        current_mod_combi = my_mod_schemes[l-2][j-1]->modes_each_layer;
+                        current_mod_combi.push_back(0);// this mod CANNOT be chosen.
                     }
                     else {       // if R_j - r >= 0, can at least afford this layer.
                         t_m = r_m;
                         if (jFloor(R_j)>0) {// remaining Rate enough for prev (l-1) layers
                             t_m = my_mod_schemes[l-2][jFloor(R_j)-1]->sum_throughput + r_m; // l-2 because l starts at 1 but index starts at 0
                             current_mod_combi = my_mod_schemes[l-2][jFloor(R_j)-1]->modes_each_layer;
+                        }
+                        else {
+                            current_mod_combi = std::list<int>(l-1, 0); // fills previous l-1 layers with "-1"
                         }
                         current_mod_combi.push_back(m);
                     }
@@ -127,7 +131,7 @@ std::list<mod_scheme*> ra_first_tier(const int& candidate_id){
                         t_m = r_m;
                         current_mod_combi.push_back(m);
                     } else
-                        current_mod_combi.push_back(-1);
+                        current_mod_combi.push_back(0);
                 }
                 fout<<"|"<<t_m;
 
