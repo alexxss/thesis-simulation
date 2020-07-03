@@ -47,7 +47,7 @@ void save_room_data(node* receiver[g_UE_number], node* transmitter[g_AP_number])
 /*          init node static member       */
 node* node::transmitter[g_AP_number] = {0};
 node* node::receiver[g_UE_number] = {0};
-
+double node::channel[g_AP_number][g_UE_number] = {0};
 int main()
 {
     /*-------------initialization----------------*/
@@ -106,6 +106,10 @@ int main()
     std::cout<<std::endl<<"AP nodes"<<std::endl;
     for(int j=0; j<g_AP_number; j++) transmitter[j]->printme(1);
 */
+    for(node* n : transmitter){
+        n->NOMA_sort_UE_desc();
+    }
+
     frequency_reuse(transmitter,receiver);
 
     for(node* n : transmitter){

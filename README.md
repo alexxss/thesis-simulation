@@ -26,6 +26,7 @@ log files for 1st Tier Resource Allocation can be found under `./log/`
 - [x] Dynamic RA: 1st Tier
 - [x] Remove candidate modulation schemes that does not fit requirement
 - [ ] Dynamic RA: 2nd Tier
+- [x] sort UE by channel (for NOMA)
 
 ## Note
 - Angle(s) of irradiance and incidence:

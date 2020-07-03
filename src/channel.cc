@@ -60,7 +60,7 @@ double calculate_one_channel(node* nodeAP, node* nodeUE){
 void calculate_all_channel(node* transmitter[g_AP_number], node* receiver[g_UE_number], double (&channel)[g_AP_number][g_UE_number]){
     for(int i=0; i<g_AP_number;i++){
         for(int j=0; j<g_UE_number;j++){
-            channel[i][j]=calculate_one_channel(transmitter[i],receiver[j]);
+            node::channel[i][j]=channel[i][j]=calculate_one_channel(transmitter[i],receiver[j]);
         }
     }
 }
