@@ -3,7 +3,7 @@
 struct mod_scheme{
 	double sum_throughput;
 	double required_power;
-	std::list<int> modes_each_layer;
+	std::list<int> modes_each_layer; // mode 0 means no mod selected for that layer!!
 };
 
 struct mod_scheme_combi{
