@@ -107,13 +107,16 @@ int node::get_resource_block(){
 //void node::tdma(){}
 
 double node::calculate_ICI(const int& UE_id){
+    /*--- case: this AP has no serving UEs ---*/
+    if (this->connected.size() == 0) return 0.0;
+
     int order = this->get_sorting_order(UE_id);
     double channel_AP_UE = node::channel[this->id][UE_id];
     double ICI = channel_AP_UE*channel_AP_UE*g_P_max;
     if (order==-1){ // if UE not associated with this AP
         return ICI;
     } else {
-        return order / this->servedUE_cnt * ICI;
+        return ICI * order / this->connected.size();
     }
 }
 
