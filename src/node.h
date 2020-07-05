@@ -4,6 +4,8 @@
 #include "global_environment.h"
 #endif // ENVIRONMENT
 
+#include "resource_allocation.h"
+
 #include<utility> //pair
 #include<list> //list
 #include<vector>
@@ -128,4 +130,10 @@ private:
     void tdma_time_allocation();
     std::list<std::list<int>> time_slot_schedule;
     std::list<int> dynamic_resource_allocation(std::vector<int>& candidate);
+    /** second tier resource allocation
+    * can only be called by AP node!!
+    * \param all_candidate_mod_scheme_set each item in this list is a pair for each UE, pair.first = UE_id, pair.second = all candidate schemes for this UE
+    * \return list of accept UEs' id
+    */
+    mod_scheme_combi ra_second_tier(const std::list<std::pair<int, std::list<mod_scheme*>>>& all_candidate_mod_scheme_set);
 };

@@ -94,7 +94,7 @@ void node::tdma_time_allocation(){
 }
 
 void node::tdma(){
-    std::cout<<"TDMA for transmitter "<<this->id<<std::endl;
+    std::cout<<"\nTDMA for transmitter "<<this->id<<std::endl;
     this->tdma_scheduling();
     this->printme(2); // print schedule
     this->tdma_time_allocation();

@@ -27,14 +27,14 @@ FOV range 70-130 step 10
 semi-angle at half-illumination (phi_1/2) 60
 gain of optical filter (g_of(psi))         1
 gain of optical concentrator (g_oc(psi))   1
-physical area for PD receiver              1   cm^2
+physical area for PD receiver              1 cm^2 = 0.0001 m^2
 reflection efficiency (rho)                0.75
 ---------------------------------------------------*/
 constexpr double g_field_of_view = 100;
 constexpr int g_PHI_half = 60;
 constexpr int g_filter_gain = 1;
 constexpr int g_concentrator_gain = 1;
-constexpr int g_receiver_area = 1;
+constexpr double g_receiver_area = 0.0001;
 constexpr double g_reflect_efficiency = 0.75;
 
 /*---------------------------------------------------
