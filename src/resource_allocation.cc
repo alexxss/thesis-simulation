@@ -1,15 +1,22 @@
 #include "node.h"
 #include "channel.h" // calculate channel
-#include <random> // uniform_real_distribution, default_random_engine
+#include <random> // uniform_real_distribution, default_random_engine, accumulate (????)
 #include <list> // std::list
 #include <algorithm> //std::sort
 #include <iostream>
 #include <fstream> // ofstream
-#include <chrono> // seed
+#include <chrono> // seed, steady_clock, duration_cast
 #include <math.h> // log2, power, floor
 #include "math.c" // erfinv
 #include "resource_allocation.h" // struct mod scheme
 
+void printSch(const mod_scheme* m_sch){
+    std::cout<<"[ ";
+    if (m_sch != NULL)
+        for(int m:m_sch->modes_each_layer)
+            std::cout<<m<<' ';
+    std::cout<<"]";
+}
 
 /** used to sort candidate in ASCENDING order of their NOMA order... */
 struct sort_candidate{
@@ -20,6 +27,19 @@ struct sort_candidate{
     }
 };
 
+double node::calculate_ICI(const int& UE_id){
+    /*--- case: this AP has no serving UEs ---*/
+    if (this->connected.size() == 0) return 0.0;
+
+    int order = this->get_sorting_order(UE_id);
+    double channel_AP_UE = node::channel[this->id][UE_id];
+    double ICI = channel_AP_UE*channel_AP_UE*g_P_max;
+    if (order==-1){ // if UE not associated with this AP
+        return ICI;
+    } else {
+        return ICI * order / this->connected.size();
+    }
+}
 
 /**
 * \brief calculate nearest lower rate constraint level
@@ -180,8 +200,13 @@ double power_required(const int& AP_id, const int& UE_id, const mod_scheme &cand
     double ICI = 0.0;
     for(int f = 0; f<g_AP_number; f++){
         if (f==AP_id) continue;
-        else
-            ICI += node::transmitter[f]->calculate_ICI(UE_id);
+        else {
+            /* check if same RB */
+            int thisRB = node::transmitter[AP_id]->get_resource_block();
+            int thatRB = node::transmitter[f]->get_resource_block();
+            if (thisRB == thatRB) /* ICI ONLY if use same RB */
+                ICI += node::transmitter[f]->calculate_ICI(UE_id);
+        }
     }
 
     /* for each layer used in candidate_scheme: calculate power required for that layer */
@@ -189,7 +214,7 @@ double power_required(const int& AP_id, const int& UE_id, const mod_scheme &cand
     std::list<double> powerSqrt_eachLayer;
     for(int m : candidate_scheme.modes_each_layer){
         l++;
-        if (m==-1) continue;
+        if (m==0) continue;
         /* SINR of this layer */
         double SINR = SINR_single_layer(m);
         /* beta_l (subcarrier ratio) of this layer */
@@ -205,7 +230,7 @@ double power_required(const int& AP_id, const int& UE_id, const mod_scheme &cand
     totalPower = (M_PI - 1)/M_PI * totalPower; // first half
     totalPower = totalPower + (1/M_PI * std::pow(std::accumulate(powerSqrt_eachLayer.begin(),powerSqrt_eachLayer.end(),0.0),2));
 
-    return totalPower/10;
+    return totalPower;
 }
 
 /** second tier resource allocation
@@ -220,7 +245,7 @@ mod_scheme_combi node::ra_second_tier(const std::list<std::pair<int, std::list<m
         mod_combi_each_constraint_up_to_prev_UE[i-1] = new mod_scheme_combi;
     }
 
-
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     /* from UE 1 to K, determine mod scheme selection for each power constraint */
     for(std::pair<int, std::list<mod_scheme*>> candidate_scheme_set : all_candidate_mod_scheme_set){
         std::cout<<"Evaluating UE "<<candidate_scheme_set.first<<": "<<candidate_scheme_set.second.size()<<" candidate schemes\n";
@@ -233,7 +258,7 @@ mod_scheme_combi node::ra_second_tier(const std::list<std::pair<int, std::list<m
         }
 
         int UE_id = candidate_scheme_set.first;
-        mod_scheme* selected_schemes_for_this_UE[g_I] = {NULL};
+        mod_scheme_combi* selected_schemes_for_this_UE[g_I] = {NULL};
 
         for(int i = 1; i<=g_I; i++){ // i is power constraint level
             double P_i = g_P_max * i / g_I;
@@ -248,44 +273,53 @@ mod_scheme_combi node::ra_second_tier(const std::list<std::pair<int, std::list<m
 
                 //... under different power constraint for prev UE
                 for(int j=1; j<=i; j++){
-                    double sum_power = power_required(AP_id,UE_id,*scheme,mod_combi_each_constraint_up_to_prev_UE[j-1]->required_power);
-                    double sum_throughput = scheme->sum_throughput + mod_combi_each_constraint_up_to_prev_UE[j-1]->sum_throughput;
+                    // power and throughput for THIS scheme only
+                    double power = power_required(AP_id,UE_id,*scheme,mod_combi_each_constraint_up_to_prev_UE[j-1]->required_power);
+                    double throughput = scheme->sum_throughput;
                     // select scheme (highest sumRate, sumPower within constraint)
-                    if (sum_power + mod_combi_each_constraint_up_to_prev_UE[j-1]->required_power <= P_i) { // power within this constraint?
-                        if (selected_schemes_for_this_UE[i-1]==NULL) { // no scheme selected before
-                            selected_schemes_for_this_UE[i-1] = new mod_scheme(scheme);
-                            selected_schemes_for_this_UE[i-1]->required_power = sum_power;
-                            selected_schemes_for_this_UE[i-1]->sum_throughput = sum_throughput;
-                        } else if (selected_schemes_for_this_UE[i-1]!=NULL && sum_throughput>=selected_schemes_for_this_UE[i-1]->sum_throughput){ // replace prev selected scheme
-                            selected_schemes_for_this_UE[i-1]->sum_throughput = sum_throughput;
-                            selected_schemes_for_this_UE[i-1]->modes_each_layer = scheme->modes_each_layer;
-                            selected_schemes_for_this_UE[i-1]->required_power = sum_power;
+                    if (power + mod_combi_each_constraint_up_to_prev_UE[j-1]->required_power <= P_i) { // power within this constraint?
+                        if (selected_schemes_for_this_UE[i-1]==NULL) { // no scheme selected yet for this constraint
+                            selected_schemes_for_this_UE[i-1] = new mod_scheme_combi;
+                        }
+                        if (throughput + mod_combi_each_constraint_up_to_prev_UE[j-1]->sum_throughput>=selected_schemes_for_this_UE[i-1]->sum_throughput){ // replace prev selected scheme
+                            selected_schemes_for_this_UE[i-1]->sum_throughput = throughput + mod_combi_each_constraint_up_to_prev_UE[j-1]->sum_throughput;
+                            selected_schemes_for_this_UE[i-1]->required_power = power + mod_combi_each_constraint_up_to_prev_UE[j-1]->required_power;
+                            selected_schemes_for_this_UE[i-1]->mod_schemes_each_UE = mod_combi_each_constraint_up_to_prev_UE[j-1]->mod_schemes_each_UE;
+                            scheme->required_power = power;
+                            selected_schemes_for_this_UE[i-1]->mod_schemes_each_UE.push_back(scheme);
                         }
                     }
-                    fout<< sum_power <<"|"<<sum_throughput<<"\t";
+                    fout<< power <<"|"<<throughput<<"\t";
                 } fout<<"\n";
                 if (selected_schemes_for_this_UE[i-1]!=NULL) {
-                    fout<<"Best scheme: power="<<selected_schemes_for_this_UE[i-1]->required_power<<"|rate="<<selected_schemes_for_this_UE[i-1]->sum_throughput<<"\n";
+                    fout<<"Cur best scheme: power="<<selected_schemes_for_this_UE[i-1]->required_power<<"|rate="<<selected_schemes_for_this_UE[i-1]->sum_throughput<<"\n";
                 }
                 else {
                     fout<<"this scheme cannot be selected for this constraint\n";
                 }
             }
+            // WHAT IF NO SCHEME AVAILABLE FOR THIS CONSTRAINT?!
+            if (selected_schemes_for_this_UE[i-1]==NULL) {
+                    selected_schemes_for_this_UE[i-1] = new mod_scheme_combi;
+                    selected_schemes_for_this_UE[i-1]->copyFrom(mod_combi_each_constraint_up_to_prev_UE[i-1]);
+                    selected_schemes_for_this_UE[i-1]->mod_schemes_each_UE.push_back(NULL);
+            }
+
             // cout which scheme chosen for this constraint
             if (selected_schemes_for_this_UE[i-1]==NULL) { // NO scheme selected for this constraint
                 std::cout<<"All schemes unaffordable.\n";
             } else { // has selected scheme for this constraint
-                std::cout<<"[ "; for(int m:selected_schemes_for_this_UE[i-1]->modes_each_layer) std::cout<<m<<' '; std::cout<<"]\t";
-                std::cout<<"Required power="<<selected_schemes_for_this_UE[i-1]->required_power<<"\t, sum rate="<<selected_schemes_for_this_UE[i-1]->sum_throughput<<"\n";
+                for(mod_scheme* m_sch:selected_schemes_for_this_UE[i-1]->mod_schemes_each_UE){
+                    printSch(m_sch); std::cout<<" ";
+                }
+                std::cout<<"Required power="<<selected_schemes_for_this_UE[i-1]->required_power<<"\t| ";
+                std::cout<<"Sum rate="<<selected_schemes_for_this_UE[i-1]->sum_throughput<<"\n";
             }
         }
         /*--- save scheme ---*/
         for(int i=1; i<=g_I; i++) {
-            if (selected_schemes_for_this_UE[i-1]!=NULL) {
-                mod_combi_each_constraint_up_to_prev_UE[i-1]->required_power += selected_schemes_for_this_UE[i-1]->required_power;
-                mod_combi_each_constraint_up_to_prev_UE[i-1]->sum_throughput = selected_schemes_for_this_UE[i-1]->sum_throughput;
-            }
-            mod_combi_each_constraint_up_to_prev_UE[i-1]->mod_schemes_each_UE.push_back(selected_schemes_for_this_UE[i-1]);
+            mod_combi_each_constraint_up_to_prev_UE[i-1]->copyFrom(selected_schemes_for_this_UE[i-1]);
+            delete selected_schemes_for_this_UE[i-1];
         }
         //delete[] selected_schemes_for_this_UE;
         fout.close();
@@ -303,9 +337,11 @@ mod_scheme_combi node::ra_second_tier(const std::list<std::pair<int, std::list<m
     }
     //delete[] mod_combi_each_constraint_up_to_prev_UE;
 
-    std::cout<<"complete.\n";
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout<<"complete. "<< "Time taken = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms\n";
     return solution;
 }
+
 
 /** this member function should only be called by an AP node during TDMA */
 std::list<int> node::dynamic_resource_allocation(std::vector<int>& candidate){
@@ -328,21 +364,45 @@ std::list<int> node::dynamic_resource_allocation(std::vector<int>& candidate){
     /* second tier RA: select scheme combination */
     mod_scheme_combi solution = this->ra_second_tier(all_candidate_mod_scheme_set);
 
-   /* if (solution.mod_schemes_each_UE.size() == 0){
-        std::cout<<"No UEs accepted. Will exit TDMA.\n";
+    if (solution.mod_schemes_each_UE.size() != candidate.size()) {
+        std::cout<<"Solution size "<< solution.mod_schemes_each_UE.size() <<" != candidate number "<< candidate.size() << ". Abort\n";
+        exit(1);
     }
-    else*/ if (solution.mod_schemes_each_UE.size() != candidate.size()) {
-        std::cout<<"Solution size "<< solution.mod_schemes_each_UE.size() <<" != candidate number "<< candidate.size() << ". Aborting.\n";
-        //exit(1);
+
+    std::cout<<"Result: ";
+    auto it = candidate.begin();
+    for(mod_scheme* m_sch : solution.mod_schemes_each_UE){
+        if(it != candidate.end()){
+           std::cout<<"\nUE "<<*it++<<"\t ";
+
+        } else {
+            std::cout<<"\nUE ??? \t ";
+            exit(1);
+        }
+        printSch(m_sch); std::cout<<' ';
+        if (m_sch) {
+            std::cout<<"p="<<m_sch->required_power;
+            std::cout<<"\t| r="<<m_sch->sum_throughput;
+        }
     }
-    // TODO: save assigned mod scheme of each UE
+    std::cout<<"\n Total power = "<<solution.required_power<<"\t| Sum rate = "<<solution.sum_throughput<<"\n";
+
 
     std::list<int> accepted;
     auto UEid_it = candidate.begin(); auto solution_it = solution.mod_schemes_each_UE.begin();
     while(UEid_it!=candidate.end() && solution_it!=solution.mod_schemes_each_UE.end()){
         if (*solution_it==NULL) {
+            /* UE <*UEid_it> rejected! */
             std::cout<<"UE "<<*UEid_it<<" rejected.\n";
         } else {
+            /*--- save the mod scheme result ---*/
+            UE_scheme curScheme;
+            curScheme.UE_id = *UEid_it;
+            curScheme.modulation_scheme = *solution_it;
+            this->mod_scheme_assignment.push_back(curScheme);
+            node::receiver[*UEid_it]->sum_throughput += (*solution_it)->sum_throughput;
+
+            /*--- for return ---*/
             accepted.push_back(*UEid_it);
         }
         UEid_it++;

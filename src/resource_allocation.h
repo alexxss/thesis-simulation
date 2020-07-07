@@ -21,6 +21,11 @@ struct mod_scheme_combi{
         this->required_power = 0.0;
         this->mod_schemes_each_UE.clear();
     }
+    void copyFrom(const mod_scheme_combi* src){
+        this->sum_throughput = src->sum_throughput;
+        this->required_power = src->required_power;
+        this->mod_schemes_each_UE = src->mod_schemes_each_UE;
+    }
 };
 
 #define RESOURCE_ALLOCATION
