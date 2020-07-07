@@ -10,11 +10,17 @@
 #include<list> //list
 #include<vector>
 
+struct UE_scheme{
+    int UE_id;
+    mod_scheme* modulation_scheme;
+};
+
 class node{
 public:
     int id;
     std::pair<double,double> location;
     double min_required_rate;
+    double sum_throughput;
 
     node(int id);
 
@@ -96,6 +102,12 @@ public:
     */
     double calculate_ICI(const int& UE_id);
 
+    /** \brief Remove relationship between two nodes
+     * \param const int& nodeId
+     * \return void
+     */
+    void dropRelationship(const int& nodeId);
+
     /* currently unused, just two test functions */
     void fakesend(node* destNode);
     void fakereceive(node* srcNode);
@@ -119,6 +131,7 @@ public:
     static node* receiver[g_UE_number];
     static double channel[g_AP_number][g_UE_number];
 private:
+    bool OnOff; /* true = on, false = off */
     int resource_block_id;
     std::list<int> connected;
     void sendRequest();
@@ -127,7 +140,7 @@ private:
     std::list<int> sorted_UE;
     std::list<double> time_allocation;
     void tdma_scheduling();
-    void tdma_time_allocation();
+    void tdma_time_allocation(bool smartMode);
     std::list<std::list<int>> time_slot_schedule;
     std::list<int> dynamic_resource_allocation(std::vector<int>& candidate);
     /** second tier resource allocation
@@ -136,4 +149,5 @@ private:
     * \return list of accept UEs' id
     */
     mod_scheme_combi ra_second_tier(const std::list<std::pair<int, std::list<mod_scheme*>>>& all_candidate_mod_scheme_set);
+    std::list<UE_scheme> mod_scheme_assignment;
 };

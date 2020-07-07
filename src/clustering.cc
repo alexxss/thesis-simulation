@@ -9,6 +9,7 @@
 #include<fstream> // file stream
 
 void UE_send_requests(node* transmitter[], node* receiver[], const double channel[][g_UE_number],const int UE_numbe, const int g_AP_number, const double g_channel_threshold){
+    std::cout << "1. UE -> AP (channel threshold)\n";
     for(int i=0;i<g_UE_number;i++){
         // check all APs, if channel > threshold send request
         for(int j=0; j<g_AP_number; j++){

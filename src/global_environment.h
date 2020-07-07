@@ -14,7 +14,7 @@ constexpr double g_room_dim = 15;
 constexpr double g_AP_height = 2.5;
 constexpr double g_UE_height = 0.85;
 
-constexpr int g_UE_number = 50; // range 10-70 step 10
+constexpr int g_UE_number = 40; // range 10-70 step 10
 constexpr int g_AP_number = 64; // should be 8*8=64
 constexpr int g_AP_per_row = 8;
 
@@ -43,7 +43,7 @@ reuse factor (rho, number of resource blocks)    1-4 step 1
 total bandiwdth (B)                              50 MHz
 ---------------------------------------------------*/
 
-constexpr int g_frequency_reuse_factor = 4; // RB id range from 0 to g_frequency_reuse_factor-1
+constexpr int g_frequency_reuse_factor = 2; // RB id range from 0 to g_frequency_reuse_factor-1
 constexpr double g_total_bandwidth = 50;
 constexpr double g_bandwidth_per_rb = g_total_bandwidth / g_frequency_reuse_factor;
 
@@ -67,7 +67,7 @@ BER                                          0.00001
 AWGN power spectral density N_0              10^-22 A2/Hz = 10^-16 A2/MHz
 ----------------------------------------------------*/
 constexpr double g_P_max = 10; // W
-constexpr double g_R_max = 1000; // bit per second
+constexpr double g_R_max = 1000; // Mbit per second
 constexpr double g_R_min = 150;
 constexpr int g_J = 100;
 constexpr int g_I = 20;
