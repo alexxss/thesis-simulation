@@ -1,3 +1,4 @@
+#ifndef ENVIRONMENT
 #define ENVIRONMENT
 
 /*---------------------------------------------------
@@ -14,7 +15,7 @@ constexpr double g_room_dim = 15;
 constexpr double g_AP_height = 2.5;
 constexpr double g_UE_height = 0.85;
 
-constexpr int g_UE_number = 40; // range 10-70 step 10
+constexpr int g_UE_max = 70; // range 10-70 step 10
 constexpr int g_AP_number = 64; // should be 8*8=64
 constexpr int g_AP_per_row = 8;
 
@@ -75,3 +76,4 @@ constexpr int g_L = 4;
 constexpr int g_M = 5;
 constexpr double g_BER = 0.00001;
 constexpr double g_N_0 = 0.0000000000000001;
+#endif //ENVIRONMENT

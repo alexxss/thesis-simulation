@@ -85,11 +85,11 @@ void set_relationship_true(const std::list<int> &overlapped_APs){
     }
 }
 
-void construct_graph(node* receiver[g_AP_number],std::list<fr_node*> graph_nodes){
+void construct_graph(std::list<fr_node*> graph_nodes){
     /* for all UE, set all of its connected APs as overlapped */
     //std::cout<<"Setting overlapped APs relationship in z[][]..."<<std::endl;
-    for(int i=0; i<g_UE_number;i++){
-        set_relationship_true(receiver[i]->get_connected());
+    for(int i=0; i<node::UE_number;i++){
+        set_relationship_true(node::receiver[i]->get_connected());
     }
     /* at here, relationship between APs (z[][]) should be OK. */
     // print(); //print z[][]
@@ -181,16 +181,16 @@ void assign_rb(std::list<fr_node*> graph_nodes){
     }
 }
 
-void frequency_reuse(node* transmitter[g_AP_number], node* receiver[g_UE_number]){
+void frequency_reuse(node* transmitter[g_AP_number]){
     std::cout<<"Build graph...\n";
     std::list<fr_node*> graph_nodes;
     for(int i=0; i<g_AP_number; i++){
         fr_node* tmpNode = new fr_node;
-        tmpNode->transmitter = transmitter[i];
+        tmpNode->transmitter = node::transmitter[i];
         graph_nodes.push_back(tmpNode);
     }
 
-    construct_graph(receiver,graph_nodes);
+    construct_graph(graph_nodes);
 
     save_fr_relationship(transmitter);
 

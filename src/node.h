@@ -1,3 +1,4 @@
+#ifndef NODE
 #define NODE
 
 #ifndef ENVIRONMENT
@@ -127,9 +128,10 @@ public:
         // TODO (alex#3#): replace main.cpp's transmitter and receiver array with these instead
         example usage: `node::transmitter[i]`
     */
+    static int UE_number;
     static node* transmitter[g_AP_number];
-    static node* receiver[g_UE_number];
-    static double channel[g_AP_number][g_UE_number];
+    static node* receiver[g_UE_max];
+    static double channel[g_AP_number][g_UE_max];
 private:
     bool OnOff; /* true = on, false = off */
     int resource_block_id;
@@ -151,3 +153,4 @@ private:
     mod_scheme_combi ra_second_tier(const std::list<std::pair<int, std::list<mod_scheme*>>>& all_candidate_mod_scheme_set);
     std::list<UE_scheme> mod_scheme_assignment;
 };
+#endif //NODE

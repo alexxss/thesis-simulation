@@ -11,11 +11,15 @@
 #include "resource_allocation.h" // struct mod scheme
 
 void printSch(const mod_scheme* m_sch){
+    #ifdef DEBUG
+
     std::cout<<"[ ";
     if (m_sch != NULL)
         for(int m:m_sch->modes_each_layer)
             std::cout<<m<<' ';
     std::cout<<"]";
+
+    #endif // DEBUG
 }
 
 /** used to sort candidate in ASCENDING order of their NOMA order... */
@@ -91,7 +95,7 @@ double node::calculate_achievable_rate_single_layer(const int& m, const int& l){
 std::list<mod_scheme*> ra_first_tier(const int& candidate_id){
     node* node_UE = node::receiver[candidate_id];
     std::list<mod_scheme*> candidate_schemes;
-    //std::cout<<"-- 1st Tier RA for UE "<<node_UE->id<<std::endl;
+    //std::cout<<"-- 1st Tier RA for UE "<<node_UE->id<<'\n';
     struct mod_scheme* my_mod_schemes[g_L][g_J]; // used to store mod schemes for all l and j
 
     std::string filepath = "./log/UE_" + std::to_string(node_UE->id) + "_first_tier";
@@ -104,7 +108,7 @@ std::list<mod_scheme*> ra_first_tier(const int& candidate_id){
     /*-- for each l, for each j, calculate max achievable rate and respective mod scheme --*/
     for(int l = 1; l<=g_L; l++){
         /* using l layers: */
-        fout<<"l = "<<l<<", "<<std::endl;
+        fout<<"l = "<<l<<", "<<'\n';
 
         for(int j = 1; j<=g_J; j++){
             /* under rate constraint R_j: */
@@ -169,7 +173,7 @@ std::list<mod_scheme*> ra_first_tier(const int& candidate_id){
             fout<<"\t=> "<<current_mod_scheme->sum_throughput<<", \t";
             //fout<<"                          \t";
             for(int i:current_mod_scheme->modes_each_layer) fout<<i<<' ';
-            fout<<std::endl;
+            fout<<'\n';
 
             /* only save schemes that produces sum rate within acceptable range */
             if (current_mod_scheme->sum_throughput >= node_UE->min_required_rate && current_mod_scheme->sum_throughput < g_R_max){
@@ -238,7 +242,10 @@ double power_required(const int& AP_id, const int& UE_id, const mod_scheme &cand
 * \return list of accept UEs' id
 */
 mod_scheme_combi node::ra_second_tier(const std::list<std::pair<int, std::list<mod_scheme*>>>& all_candidate_mod_scheme_set){
+    #ifdef DEBUG
     std::cout<<"-- Second tier...\n";
+    #endif // DEBUG
+
     const int AP_id = this->id;
     mod_scheme_combi* mod_combi_each_constraint_up_to_prev_UE[g_I]; // each l-th element = scheme combi from row(UE) 1 to prev under constraint l
     for(int i=1;i<=g_I;i++) {  // init
@@ -248,6 +255,7 @@ mod_scheme_combi node::ra_second_tier(const std::list<std::pair<int, std::list<m
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     /* from UE 1 to K, determine mod scheme selection for each power constraint */
     for(std::pair<int, std::list<mod_scheme*>> candidate_scheme_set : all_candidate_mod_scheme_set){
+        #ifdef DEBUG
         std::cout<<"Evaluating UE "<<candidate_scheme_set.first<<": "<<candidate_scheme_set.second.size()<<" candidate schemes\n";
         /*-- for logging */
         std::string filepath = "./log/AP_" + std::to_string(AP_id) + "_UE_" + std::to_string(candidate_scheme_set.first) +"_second_tier";
@@ -256,20 +264,25 @@ mod_scheme_combi node::ra_second_tier(const std::list<std::pair<int, std::list<m
             std::cout<<"Can't Open "<<filepath<<", exiting now";
             exit(1);
         }
+        #endif // DEBUG
 
         int UE_id = candidate_scheme_set.first;
         mod_scheme_combi* selected_schemes_for_this_UE[g_I] = {NULL};
 
         for(int i = 1; i<=g_I; i++){ // i is power constraint level
             double P_i = g_P_max * i / g_I;
+            #ifdef DEBUG
             std::cout<<"p_"<<i<<" = "<<P_i<<"  \t";
             fout<<"p_"<<i<<" = " <<P_i<<"----------------------------------------------------------------\n";
+            #endif // DEBUG
 
             /*--- determine best scheme under P_i ---*/
             // calculate required power & sum_throughput for each candidate scheme...
             for(mod_scheme* scheme : candidate_scheme_set.second){
+                #ifdef DEBUG
                 fout<<"Mod scheme [";
                 for(int m:scheme->modes_each_layer)fout<<m<<","; fout<<"]\t";
+                #endif // DEBUG
 
                 //... under different power constraint for prev UE
                 for(int j=1; j<=i; j++){
@@ -289,14 +302,20 @@ mod_scheme_combi node::ra_second_tier(const std::list<std::pair<int, std::list<m
                             selected_schemes_for_this_UE[i-1]->mod_schemes_each_UE.push_back(scheme);
                         }
                     }
-                    fout<< power <<"|"<<throughput<<"\t";
-                } fout<<"\n";
+                    #ifdef DEBUG
+                     fout<< power <<"|"<<throughput<<"\t";
+                    #endif // DEBUG
+
+                }
+                #ifdef DEBUG
+                fout<<"\n";
                 if (selected_schemes_for_this_UE[i-1]!=NULL) {
                     fout<<"Cur best scheme: power="<<selected_schemes_for_this_UE[i-1]->required_power<<"|rate="<<selected_schemes_for_this_UE[i-1]->sum_throughput<<"\n";
                 }
                 else {
                     fout<<"this scheme cannot be selected for this constraint\n";
                 }
+                #endif // DEBUG
             }
             // WHAT IF NO SCHEME AVAILABLE FOR THIS CONSTRAINT?!
             if (selected_schemes_for_this_UE[i-1]==NULL) {
@@ -305,6 +324,7 @@ mod_scheme_combi node::ra_second_tier(const std::list<std::pair<int, std::list<m
                     selected_schemes_for_this_UE[i-1]->mod_schemes_each_UE.push_back(NULL);
             }
 
+            #ifdef DEBUG
             // cout which scheme chosen for this constraint
             if (selected_schemes_for_this_UE[i-1]==NULL) { // NO scheme selected for this constraint
                 std::cout<<"All schemes unaffordable.\n";
@@ -315,6 +335,7 @@ mod_scheme_combi node::ra_second_tier(const std::list<std::pair<int, std::list<m
                 std::cout<<"Required power="<<selected_schemes_for_this_UE[i-1]->required_power<<"\t| ";
                 std::cout<<"Sum rate="<<selected_schemes_for_this_UE[i-1]->sum_throughput<<"\n";
             }
+            #endif // DEBUG
         }
         /*--- save scheme ---*/
         for(int i=1; i<=g_I; i++) {
@@ -322,7 +343,10 @@ mod_scheme_combi node::ra_second_tier(const std::list<std::pair<int, std::list<m
             delete selected_schemes_for_this_UE[i-1];
         }
         //delete[] selected_schemes_for_this_UE;
+        #ifdef DEBUG
         fout.close();
+        #endif // DEBUG
+
     }
 
     /*--- all K UEs are done ---*/
@@ -338,13 +362,18 @@ mod_scheme_combi node::ra_second_tier(const std::list<std::pair<int, std::list<m
     //delete[] mod_combi_each_constraint_up_to_prev_UE;
 
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    #ifdef DEBUG
     std::cout<<"complete. "<< "Time taken = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms\n";
+    #else
+    std::cout<<"Second tier complete. Time taken = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "ms\n";
+    #endif // DEBUG
     return solution;
 }
 
 
 /** this member function should only be called by an AP node during TDMA */
 std::list<int> node::dynamic_resource_allocation(std::vector<int>& candidate){
+
     /* a list of pair<UE_id, list_of_candidate_schemes_of_this_UE> */
     std::list<std::pair<int, std::list<mod_scheme*>>> all_candidate_mod_scheme_set;
 
@@ -352,14 +381,19 @@ std::list<int> node::dynamic_resource_allocation(std::vector<int>& candidate){
     std::sort(candidate.begin(),candidate.end(),sort_candidate(this->id));
 
     /* first tier RA: generate mod schemes for each UE */
+    #ifdef DEBUG
     std::cout<<"-- First tier...";
+    #endif // DEBUG
     for(int candidate_id:candidate){
         std::pair<int,std::list<mod_scheme*>> candidate_mod_schemes_perUE;
         candidate_mod_schemes_perUE.first = candidate_id;
         candidate_mod_schemes_perUE.second = ra_first_tier(candidate_id);
         all_candidate_mod_scheme_set.push_back(candidate_mod_schemes_perUE);
     }
+    #ifdef DEBUG
     std::cout<<"complete.\n";
+    #endif // DEBUG
+
 
     /* second tier RA: select scheme combination */
     mod_scheme_combi solution = this->ra_second_tier(all_candidate_mod_scheme_set);
@@ -369,6 +403,7 @@ std::list<int> node::dynamic_resource_allocation(std::vector<int>& candidate){
         exit(1);
     }
 
+    #ifdef DEBUG
     std::cout<<"Result: ";
     auto it = candidate.begin();
     for(mod_scheme* m_sch : solution.mod_schemes_each_UE){
@@ -385,8 +420,8 @@ std::list<int> node::dynamic_resource_allocation(std::vector<int>& candidate){
             std::cout<<"\t| r="<<m_sch->sum_throughput;
         }
     }
-    std::cout<<"\n Total power = "<<solution.required_power<<"\t| Sum rate = "<<solution.sum_throughput<<"\n";
-
+    std::cout<<"\nTotal power = "<<solution.required_power<<"\t| Sum rate = "<<solution.sum_throughput<<"\n";
+    #endif // DEBUG
 
     std::list<int> accepted;
     auto UEid_it = candidate.begin(); auto solution_it = solution.mod_schemes_each_UE.begin();

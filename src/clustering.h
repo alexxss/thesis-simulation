@@ -10,7 +10,7 @@
 /*
 UE_send_requests and AP_send_requests are currently unused :P
 */
-void UE_send_requests(node*[], node*[], const double[][10],const int, const int, const double);
+void UE_send_requests();
 void AP_send_requests();
 
 /**
@@ -18,4 +18,4 @@ void AP_send_requests();
 * \param transmitter array of transmitters
 * \param receiver array of receivers
 */
-void both_sides_connect(node* transmitter[g_AP_number], node* receiver[g_UE_number]);
+void both_sides_connect();

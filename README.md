@@ -15,7 +15,9 @@ To show all of above + AP's assigned RB \#:
 gnuplot -p plot_fr.gnu
 ```
 
-log files for 1st Tier Resource Allocation can be found under `./log/`
+call GCC with `-DDEBUG` to show 2nd Tier details in console.
+more detailed log files for 1st Tier & 2nd Tier can be found under `./log/`.
+Final output configuration (clustering, RB, tdma, RA) of each instance can be found in `./sol/`.
 
 ## TODO
 - [x] Use channel formula
@@ -25,7 +27,7 @@ log files for 1st Tier Resource Allocation can be found under `./log/`
 - [x] TDMA
 - [x] Dynamic RA: 1st Tier
 - [x] Remove candidate modulation schemes that does not fit requirement
-- [ ] Dynamic RA: 2nd Tier
+- [x] Dynamic RA: 2nd Tier
 - [x] sort UE by channel (for NOMA)
 
 ## Note
@@ -37,4 +39,4 @@ when "semi-angle at half illuminance" = 60 deg, "order of Lambertian emission" =
    - [This paper](https://www.researchgate.net/publication/337551362) gives different formula to calculate.
    - i am confusion. america exblain
 
-> [time=Sun, Jun 28, 2020 03:07 AM]
+> Wed, Jul 08 2020, 22:29

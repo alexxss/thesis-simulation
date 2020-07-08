@@ -20,4 +20,4 @@ struct fr_node{
     std::list<int> get_rb_candidate();
 };
 
-void frequency_reuse(node* transmitter[g_AP_number], node* receiver[g_UE_number]);
+void frequency_reuse(node* transmitter[g_AP_number]);
